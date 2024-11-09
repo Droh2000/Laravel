@@ -1,0 +1,33 @@
+Creamos la tablas desde el lenguaje y eso se traduce al esquema de Base de datos
+Se puede implementar la migracion sin importar el tipo de gestor de base de datos que se este implementando
+
+El trabajo en Equipo nos beneficia donde cada uno trabaja en direntes acciones
+asi todos trabaja bajo el mismo esquema de la Base de datos
+
+Base de Datos -> Modelos -> Controladores -> Vista (Capas de integracion)
+
+Asi como podemos ejectuar las migraciones la podemos revertir por si requerimos aplicar cambios a las tablas
+ya creadas o cambios de esquemas generales, Esto se hace con comandos en Artisan
+
+Comandos:
+
+php artisan
+            Create <tabla> _table 
+            
+            add <operation>_<tabla>_table -> Modificar en una parte de la tabla
+
+            make:migration <NombreMigracion> -> Crear la  migracion
+                make:migration create<NombreMigracion>Table (Se coloca en el nombre "create" para que laravel nos autocomplete las acciones que queremos hacer
+                                                         ademas el nombre en ingles y plural)
+            
+            migrate:rollback -> Para eliminar la ultima migracion registrada
+            
+            migrate:refresh -> Eliminar todas las tablas y volver a crear las migraciones (Todas las migraciones quedaran registradas en un mismo batch)
+
+El orden en el que se ejecutan las migraciones es el orden en el que se ejecutan y la forma de eliminarlas es empezando por la
+ultima migracion creada, en la BD tenemos la tabla de migraacion con el numero de batch que indica el Lote en el que se ejecuto la migracion
+y esa es la forma en cojunto que se trataran al Rollback o ejecutar de nuevo la migracion
+
+            php artisan migrate -> Implementar las migraciones
+
+
