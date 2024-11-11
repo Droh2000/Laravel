@@ -8,6 +8,21 @@
 </head>
 <body>
     <header>
+        <!-- 
+                Implementacion de los mensajes para indidcar al usuario que la accion se realizo correctamente
+            El 'status' es porque es la Clave indicada en el controlador para acceder a este mensaje
+        -->
+        @if (session('status'))
+            {{session('status')}}   
+        @endif
+        <!-- 
+            Tambien se puede declarar de la siguiente forma
+        -->
+        {{--@session('status')
+                <h1>{{$value}}</h1>
+        @endsession--}}
+
+        <!-- Estas dos formas aplican tanto para los mensajes de tipo Flash como de Session -->
         
     </header>
 

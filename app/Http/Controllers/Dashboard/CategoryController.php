@@ -36,7 +36,25 @@ class CategoryController extends Controller
     {
         Category::create($request->validated());
 
-        return to_route('category.index');
+        // Mensaje de tipo Flash para indicar al usuario que la accion se realizo
+        // Dentro del With se pasa como CLAVE : Valor accediendo a la vaisa con la Clave 
+        // Estos solo se muestran un Request, saliendo despues que se manda al usuario a la pagina indicada aqui
+        return to_route('category.index')->with('status', 'Category created');
+
+        // Mensaje de Session
+        // Es igual con Clave:Valor pero a diferencia del anterior no dura solo un request sino
+        // que dura lo que configuremos en tiempo, esta forma se usa comunmente para almacenar datos
+        // de usuario, dato de control, datos de compra
+
+        // Aqui estamos estableciendo un Valor en la llave Key
+        session(['key' => 'value']);
+
+        // Para destruir el mensaje (Se tiene que comentar la linea de arriba que lo activa y descomentar esta linea que destruye)
+        session()->flush();// Este no recibe argumento y destruye todo
+        // session()->forget('key');// Es para indicar cual de las Claves queremos destruir en caso de tener varias
+
+        // Para activar esto tenemos que ir a la pagina de index (Porque ahi esta implementado para ver el SESSION)
+        // asi activamos o desactivamos la SESSION
     }
 
     /**
@@ -62,7 +80,7 @@ class CategoryController extends Controller
     {
         $category->update($request->validated());
 
-        return to_route('category.index');
+        return to_route('category.index')->with('status', 'Category Updated');
     }
 
     /**
@@ -72,6 +90,6 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        return to_route('category.index');
+        return to_route('category.index')->with('status', 'Category Deleted');
     }
 }
