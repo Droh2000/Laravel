@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        Header
+        
     </header>
 
     <!-- Vista Maestra configuraando el formato que debe de seguri 

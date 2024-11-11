@@ -1,0 +1,87 @@
+
+
+        TINKER
+
+Evaluar el comportamiento y hacer pruebas de nuestra aplicacion
+seria una consola interactiva 
+
+Acceder:        php artisan tinker
+
+Dentro se tienen que importar todos los modulos y clases que queramos utilizar
+asi como vemos al inicio de nuestros archivos las importaciones
+
+A continuacion podemos crear por ejemplo categorias:
+    $category->title='Cate3'
+        ... 
+    $category->save()
+
+    (Esto realmente se crea en la BD)
+
+
+        RUTAS
+
+Si no quremos usar los contoladores tambien podriamos usarlo en los componentes
+que serian un equivalente, pero no podemos hacer lo mismo con las rutas
+de forma que si no la creamos no hay forma de poder acceder a recursos ni navegar
+
+Declaracion:
+                Route::TIPO('/URI', 'NombreMetodo')->name('NombreRuta');
+
+        Con parametros:
+                Route::TIPO('/URI/{Param}', function (Param){ ... }) 
+
+            Si es opcional le pasamos un signo de interogacion: '/URI/Param?' y se inicializa en la funcion (Param=Valor)
+    
+    Rutas Agrupadas
+
+        Podemos agrupas rutas y poder predefinir algunos parametos o URIs
+
+                Route::<opcion>(<Parametros>)->group(function() {
+                    // ** RUTAS
+                });
+        
+        Por ejemplo aqui estamos agrupando dentro de la carpeta de 'dashboard' entonces la logica es poner ese nombre al inicio del URI
+        En este caso usando el RESOURCE seria:
+
+                Route::resource('/dashboard/post', ...)
+        
+        El problema es que tendriamos que agregar esto por cada controlador y si son muchos seria mucho problema
+        y con la agrupacion nos ahorramos este trabajo donde no importa si tenemos muchos controladores, ademas queda mas organizado
+
+        Solucion Usando las Agurpadas con la ruta Dashboard:
+
+                Route::group(['namespace' => 'Dashboard'], function(){
+                    // Rutas de los controladores dentro del Namespace "App/Http/Controllers/Dashboard"
+                    // ** Rutas
+                });
+
+            Lo mismo pero usando el prefijo
+
+                Route::group(['prefix' => 'dashboard'], function(){
+                    Route::resources('post', PostController::class);
+                    Route::resources('category', CategoryControler::class);
+                });
+
+
+    Hay otra formas de trabajar con las rutas que seria el equivalente a hacerlo de forma manual
+
+                Route::controller(Controlador::class)->group(function() {
+                    //** Rutas
+                });
+    
+    Rutas de tipo Recurso
+
+            Si tenemos mas de una ruta las podemos agrupar como:
+
+                Route::resources([
+                    'post' => PostController::class,
+                    'category' => CategoryController::class,
+                ]);
+
+       
+        MIDDLEWARE
+
+    Se usan para la autenticacion donde seria la Peticion -> Middleware -> Controlador
+
+
+
