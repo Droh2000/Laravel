@@ -1,23 +1,23 @@
 @extends('dashboard/master')
 
 @section('content')
-    <a href="{{ route('category.create') }}" target="blank">Create Category</a>
+    <a class="btn btn-primary my-3" href="{{ route('category.create') }}" target="blank">Create Category</a>
 
-    <table>
+    <table class="table">
         <thead>
             <tr>
-                <td>
+                <th>
                     Id
-                </td>
-                <td>
+                </th>
+                <th>
                     Title
-                </td>
-                <td>
+                </th>
+                <th>
                     Slug
-                </td>
-                <td>
+                </th>
+                <th>
                     Options
-                </td>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -33,12 +33,12 @@
                         {{$category->slug}}
                     </td>
                     <td>
-                        <a href="{{route('category.show',$category->id)}}">Mostrar</a>
-                        <a href="{{route('category.edit',$category->id)}}">Editar</a>
+                        <a class="btn btn-success mt-2" href="{{route('category.show',$category->id)}}">Mostrar</a>
+                        <a class="btn btn-success mt-2" href="{{route('category.edit',$category->id)}}">Editar</a>
                         <form action="{{route('category.destroy',$category->id)}}" method="post">
                             @csrf
                             @method('delete')
-                            <button type="submit">Eliminar</button>
+                            <button class="btn btn-danger mt-2" type="submit">Eliminar</button>
                         </form>
                     </td>
                 </tr>
@@ -47,5 +47,7 @@
     </table>
     
     <!-- Paginacion -->
-    {{$categories->links()}}
+    <div class="mt-2">
+        {{$categories->links()}}
+    </div>
 @endsection

@@ -1,31 +1,31 @@
 @extends('dashboard/master')
 
 @section('content')
-    <a href="{{ route('post.create') }}" target="blank">Crear Post</a>
+    <a class="btn btn-primary my-3" href="{{ route('post.create') }}" target="blank">Crear Post</a>
 
     <!-- De los posts solo vamos a mostrar titulo pero no el contenido porque es mucho dato 
     
         En la tabla podemos agregar las opciones CRUD al lado del registro o mas opciones
         Por eso se agrega la columna de las opciones
     -->
-    <table>
+    <table class="table">
         <thead>
             <tr>
-                <td>
+                <th>
                     Id
-                </td>
-                <td>
+                </th>
+                <th>
                     Title
-                </td> 
-                <td>
+                </th> 
+                <th>
                     Posted
-                </td> 
-                <td>
+                </th> 
+                <th>
                     Category
-                </td> 
-                <td>
+                </th> 
+                <th>
                     Options
-                </td>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -46,14 +46,14 @@
                         {{$post->category->title}}
                     </td>
                     <td>
-                        <a href="{{ route('post.show', $post->id) }}">Mostrar</a>
-                        <a href="{{ route('post.edit', $post->id) }}">Editar</a>
+                        <a class="btn btn-succes mt-2" href="{{ route('post.show', $post->id) }}">Mostrar</a>
+                        <a class="btn btn-succes mt-2" href="{{ route('post.edit', $post->id) }}">Editar</a>
                         <!-- Para el de eliminar tenemos que hacerlo de otra forma porque asi no va funcion, se tiene que hacer por
                              que es con un formulario porque no es una peticion de tipo GET-->
                         <form action="{{route('post.destroy',$post->id)}}" method="post">
                             @method('delete')
                             @csrf
-                            <button type="submit">Eliminar</button>
+                            <button class="btn btn-danger mt-2" type="submit">Eliminar</button>
                         </form>
                     </td>
                 </tr>
@@ -67,5 +67,7 @@
         Ya implementada en el controlador con esto creamos la forma de navegar entre paginas
         Este componente por defecto usa clases de CSS Tawing
     -->
-    {{ $posts -> links() }}
+    <div class="mt-2">
+        {{ $posts -> links() }}
+    </div>
 @endsection

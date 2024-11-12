@@ -1,40 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Layout</title>
-</head>
-<body>
-    <header>
-        <!-- 
-                Implementacion de los mensajes para indidcar al usuario que la accion se realizo correctamente
-            El 'status' es porque es la Clave indicada en el controlador para acceder a este mensaje
-        -->
-        @if (session('status'))
-            {{session('status')}}   
-        @endif
-        <!-- 
-            Tambien se puede declarar de la siguiente forma
-        -->
-        {{--@session('status')
-                <h1>{{$value}}</h1>
-        @endsession--}}
+<!-- 
+        Esta es a vista maestra que es usada como componente en el dashboard
+-->
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <!-- Estas dos formas aplican tanto para los mensajes de tipo Flash como de Session -->
-        
-    </header>
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Vista Maestra configuraando el formato que debe de seguri 
-        No tiene el contenido a mostrar al usuario pero si tiene la estructura que se debe de seguir
-        Con esto podemos cambiar algo aqui y automaticamente se cambia en todas las pagina que usen esta vista
-    -->
-    @yield('content')
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <section>
-        @yield('morecontent')
-    </section>
-    
-</body>
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+            @include('layouts.navigation')
+
+            <!-- Page Heading -->
+            @isset($header)
+                <header class="bg-white dark:bg-gray-800 shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endisset
+
+            <!--        Page Content 
+                
+                Aqui es donde vamos a estar agregando para renderizar nuestra aplicacion
+            -->
+            <main>
+                <!-- Estilo ya predefinido para que los componentes no se vean muy estirados en la pantalla y mx-auto para centrarlo-->
+                <div class="container mx-auto">
+
+                    @if(session('status'))
+                        <div class="card card-success my-3">
+                            {{session('status')}}
+                        </div>
+                    @endif
+
+                    <div class="card card-white mt-8">
+                        @yield('content')
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
 </html>

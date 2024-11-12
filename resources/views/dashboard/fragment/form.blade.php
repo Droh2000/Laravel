@@ -26,16 +26,16 @@
                     old('NombreCampoEnBD', ValorObtenidoDeLaPeticion)
         -->
         <label for="">Title</label>
-        <input type="text" name="title" value="{{old('title', $post->title)}}"><!-- Le especificamos los mismos nombres que tenemos en la variable Fillable -->
+        <input class="form-control" type="text" name="title" value="{{old('title', $post->title)}}"><!-- Le especificamos los mismos nombres que tenemos en la variable Fillable -->
 
         <label for="">Slug</label>
-        <input type="text" name="slug" value="{{old('slug', $post->slug)}}">
+        <input class="form-control" type="text" name="slug" value="{{old('slug', $post->slug)}}">
         
         <label for="">Content</label>
-        <textarea type="text" name="content">{{old('content', $post->content)}}</textarea>
+        <textarea class="form-control" type="text" name="content">{{old('content', $post->content)}}</textarea>
         
         <label for="">Category_id</label>
-        <select name="category_id">
+        <select class="form-control" name="category_id">
             <!-- Manejos las cateogrias recibidas de la base de datos 
                 En este caso por recibir en clave:valor obtenemos asi el Titulo -> id (Separando el valor de la clave) -->
             @foreach ($categories as $title => $id)
@@ -48,10 +48,10 @@
         </select>
         
         <label for="">Description</label>
-        <textarea type="text" name="description">{{old('description', $post->description)}}</textarea>
+        <textarea class="form-control" type="text" name="description">{{old('description', $post->description)}}</textarea>
         
         <label for="">Posted</label>
-        <select name="posted">
+        <select class="form-control" name="posted">
             <!-- Aqui si le definimos las opciones ya que no las trae desde la BD-->
             <option {{old('posted', $post->posted) == 'yes' ? 'selected' : ''}} value="yes">Yes</option>
             <option {{old('posted', $post->posted) == 'no' ? 'selected' : ''}} value="no">No</option>
@@ -80,4 +80,4 @@
             <input type="file" name="image"><!-- El name debe ser igual con la clase de validacion --> 
         @endif
         
-        <button type="submit">Send</button>
+        <button class="btn btn-success" type="submit">Send</button>

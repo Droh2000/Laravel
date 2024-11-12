@@ -79,9 +79,81 @@ Declaracion:
                 ]);
 
        
+
+LARAVEL BREEZE
+
+Es para poder implementar de forma simple las funciones de autenticacion de Laravel como son
+registro, inicio de sesion, establecer contraseña, verificar contraseña, autenticacion
+ademas nos da componentes de vista que podemos solo usar.
+Tambien con este vamos a habilitar la session, usar los Middleware para notificar si el usuario esta o no
+autenticado
+
         MIDDLEWARE
 
     Se usan para la autenticacion donde seria la Peticion -> Middleware -> Controlador
 
+Despues de instalar Laravel BREEZE
+
+    Empezamos registrando un usuario en la ventana partiente para poder acceder al sistema
+
+Tendremos muchos archivos nuevos, entre ellos en la carpeta de controller estan todos los controladores de autenticacion
+siguiendo el mismo esquema que veniamos aplicando
+
+En la carpeta de Request tenemos para el Login
+
+En las vistas tenemos los componentes, existen componentes publicos que heredan de la clase component
+y componentes anonimos que no tienen clase asociada (Que se usan para crear fragmentos de vista pero aqui podemos definir atributos)
+en el HTML cada elemento es reutilizable a diferencia de la vista template que teniamos antes con el formulario
+Cuado vemos "<x- " al inicio en un HTML siginifica que es un componente
+
+    Si no se visualiza el proyecto tenemos que ejecutar: "npm run dev" o "npm run build"
+    Este comando lo tenemos que ejecutar si al modificar el proyecto no vemos los cambios aplicados
+
+Trucos VS Code
+    Selecciona la palabra donde al lado queramos agregar algo y esta palabra esta en otras parte y en esas tambien queremos agregar algo
+    Ctrl+D flecha para movernos y escribirmos y se escribira en todos los campos
+
+
+    CREAR NUEVO PROYECTO DE LARAVEL 
+
+        1. - laravel new NombreProyecto
+        2. - Elegimos las opciones: [none, breese, jetstream]
+        3. - Elegimos la Tecnologia a aplicar: [Blade, Livewire, React, Vue, API]
+        4. - Elegir caracteristica opcional: [none, dark, ssr, typescripe]
+        5. - Pruebas unitarias: [Pest, PHPUnit]
+        6. - Elegir si activar Gtihub
+
+
+        MANEJO DE ROLES (Para la Autenticacion)
+
+Con esto nos garantizamos si el usuario que accedio es tipo Admin o Regular (Entro otros perfiles)
+
+En Laravel tenemos SPATIE donde ya nos brinda estos sistemas de seguridad
+
+Al incio vamos a crearlos manualmente, aqui hay que recordar como en los modelos teniamos que crear la variable 
+"$fillable" donde ahi podemos aprovechar de colocar campos ocultos en nuestra tabla, BD, Campos y en esta variable
+no los exponemos al no especificarlos, por ejemplo el campo de Tipo ROL que por seguridad desde la aplicacion no vamos
+a estar creando usuarios de administrador (Esto se hara manual desde la BD) entonces de manera automatica le damos 
+un valor a esa columna para que los usuarios siempre se registren de tipo Regular
+
+Para esto vamos a agregarle una columna a la tabla con la migracion (Aqui le especificamos que el usuario que registrara por
+defecto sera de tipo Regular)
+
+    Comandos:
+                php artisan make:migration AddRolToUsersTable -> Add de agregar, Rol (NombreColumna), UserTable(NombreTabla)
+            
+        Esto nos crea un archivo de migracion donde ya internamente le codificamos (Al finalizar ejecutamos: php artisan migrate)
+
+Despues de est vamos a crear un Middleware personalizado que verifica si el usuario es Admin o Regular y se colocara en las rutas
+agrupadas 
+
+    Comandos:   
+                php artisan make:middleware UserAccessDashboardMiddleware
+
+        Esto se nos crea en la carpeta Http dentro de la subcarpeta Middleware
+
+        El Middleware se ejecuta cuando se da la peticion del cliente, entra al archivo web.php de las Rutas donde antes de 
+        entrar a la ruta para a procesa el middleware donde evalua lo que implementamos en la clase del middleware
+        y si cumple el usuario sigue con el "next()" sino lo manda a donde configuramos que lo mande
 
 
