@@ -512,6 +512,47 @@ Ocultar Atributos/Metodos
         Para ejectuar el es el mismo de SEEDERS
         
 
+    REST API
+
+Asi es como hacemos que otras aplicaciones de terceros se puedan comunicar nuestra aplicacion y realizar ciertas acciones
+Una de las caracteristicas de la REST Api es SIN ESTADO que aplica a la sesion, nosotros cuando queremos autenticar algo en 
+laravel basico se emplea lo que seria la session pero en una Rest API por definicion es Sin estado
+y por lo tanto tenemos otro esquema de autenticacion que seria en base a Tokens (ESto es una recomendacion no una obligacion ya
+que podemos emplear una API Rest con estado es decir con sesion lo cual nos sirve si el proyecto que va a consumir la API es Local
+al proyecto, donde ambos proyectos estan en el mismo dominio y se podria implementar la autenticacion por session)
+
+Lo que se van a crear al inicio son rutas no se van a hacer en el web.php ya que ahi es para las rutas WEB
+esto se crea en un archivo "API.php" pero en laravel 11 no existe y lo tenemos que crear con un comando:
+
+        php artisan install:api
+
+Al ejecutar el comando veremos que tambien se va a descargar Sanctum que nos sirve para la autenticacion de dos esquemas
+
+Aqui al inicio vamos a crear una Api publica y no vamos a requerir de autenticacion
+
+En el archivo de Boostrap/app.php -> este es el archivo donde vemos como las configuraciones 
+esta funcionadas a partir de laravel 11
+En este archivo es donde colocamos la ruta del archivo Api.php
+Dentro del archivo "app.php" podemos colocar una personalizacion para el prefijo para nuestras rutas
+
+Para entender el funcionamiento de todo esto
+    Creamos un controlador en una carpeta Api/Nombre y le indicamos que se asocie con el modelo
+        * php artisan make:controller Api/CategoryController -m Category
+
+        Tambien creamos uno para los Posts
+
+    Para acceder a la API: /api/NpmbreDeLaRuta definida en el archivo Api.php
+
+Entonces lo que requerimos son los modelos y los Request de los modelos ya que el proceso es similar a 
+cuando creamos los CRUDs, lo que cambia aqui es el tipo de respuesta que queremos regresar que ya no es una vista
+sino un JSON
+
+Para probar la API tenemos que ejecutar las migraciones:
+
+        php artisan migrate
+
+ya que cuando agregamos para crear la API nos crea tablas
+
     
 
 
