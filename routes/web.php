@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\blog\BlogController;
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\PostController;
 use App\Http\Controllers\ProfileController;
@@ -38,6 +39,13 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth', UserAccessDashbo
     Route::get('', function () {
         return view('dashboard'); // Aqui estamos resolviendo la ruta de dashboard
     })->middleware(['auth' ])->name('dashboard');
+});
+
+// Rutas para el Blog que es donde implementamos los componentes
+Route::group(['prefix' => 'blog'], function() {
+    // Aqui tambien podriamos pasar la ruta de Dashboard paa proteger esta ruta
+    Route::get('', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('detail/{post}', [BlogController::class, 'show'])->name('blog.show');
 });
 
 require __DIR__.'/auth.php';

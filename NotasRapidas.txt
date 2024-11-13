@@ -157,3 +157,344 @@ agrupadas
         y si cumple el usuario sigue con el "next()" sino lo manda a donde configuramos que lo mande
 
 
+
+    ELOQUENT (ORM)
+
+Tenemos el Query Builder que nos da una clase de ayuda llamada DB donde nos podemos conectar con cualquier tabla
+sin emplear el modelo y con Eloquent es cuando estamos usando el Modelo
+
+Podemos probar esto con Tinker: (php artisan tinker)
+    * Importamos los modelos (Use ...)
+
+    Ejemplo de Comandos:
+        $post = Post::where('id','>',5)->get()  -- Si no colocamos operador por defecto busca el ==
+        $post = Post::where('id','>',5)->first() -- Este es para regresar solo el primero
+
+        Para ver la Instruccion SQL que nos regresa el ORM:
+        
+            $post = Post::where('id','>',5)->toSql()  -- El signo ? es que es dinamico
+
+        Lo podemos hacer mas complejo como queramos:
+
+            $post = Post::where('id','>',5)->where('title', 'test')->toSql()  -- Dos Where funcionan como un AND
+            $post = Post::where('id','>',5)->orWhere('title', 'test')->toSql()  -- Asi funciona como un OR
+        
+        Para utilizar DB lo importamos: use Illuminate\Support\Facades\DB;
+
+            Como no estamos asociando el modelo usamos la funcion table()
+
+                DB::table('posts')->where('id','>',5)->toSql()
+            
+    JOINS
+
+        Pasamos las tablas con las que queremos unir, el segundo parametro seria la columna con la que hacemo match
+        por la relacion de tipo FK, luego colocamos la condicion, luego indicamos en donde se encuentra la columna con 
+        la que queremos hacer Match 
+
+        Hay que tener a consideracion si las tablas tienen campos que se llaman igual porque sino remplaza para la ultima tabla que tenga
+        es por eso que se coloca aqui NombreTabla.Campo
+
+            Post::join('categories', 'categories.id', '=', 'posts.category_id')->get()
+
+        Con Select especificamos los campos que queremos obtener (Con 'posts.*' obtenemos todos los campos de posts)
+
+            Post::join('categories', 'categories.id', '=', 'posts.category_id')->select('post.title')->get()
+        
+        Si colocamos un Alias (En caso que los campos se repitan)
+
+            Post::join('categories', 'categories.id', '=', 'posts.category_id')->select('post.*', 'categories.id as c_id')->get()
+
+        Para los otros tipos de Joins solo se cambia donde dice ::join y los parametros son los mismos que aqui
+
+    ORDER BY
+
+        Esta instruccion se puede colocar en cualquier lugar pero lo importante es colocarla antes de la operacion que va
+        a hacer la conexion (Where, First, Find, Get, Si lo hacemos despues nos dara Error), entonces seria OrderBy(NombreColumna) y por defecto es acendente
+        
+            Post::where('id', '>', '1')->orderby('id')->get()
+
+        De manera descedente
+
+            Post::where('id', '>', '1')->orderby('id', 'desc')->get()
+
+            DB::table('categories')->where('id', '>', '1')->orderby('id', 'desc')->get()
+        
+    WHEREIN y WHERENOTINT
+
+        Para cuando quereamos buscar por un rango de valores y no solo un resultado (Se pasa dentro de un Array)
+        En este caso queremos buscar el Id del post, despues el Array de varios valores a obtener
+
+            Post::whereIn('post.id', [1,4,5])->get()
+        
+        Si queremos lo contrario
+
+            Post::whereNotIn('post.id', [1,4,5])->get()
+        
+    WHERE OrWHERE    
+
+        Con OrWhere es para buscar cuando queremos buscar algo que tiene diversas categorias, asi cuando
+        queremos devolver un conjunto de este tipo de dato, para esto agrupamos de la forma en la que
+        se especifica un Where pero en lugar de pasarle una condicon, se le pasa una funcion y asi logramos agrupar
+        Ya que por defecto al colocar solamente muchos WHERE normales la condiciones se crean al mismo nivel sin parentesis
+
+        Lo agrupamos:
+
+            Post::where('id','>=',1)->where(function($query){
+                $query->where('category_id', 1)->orWhere('posted', 'yes')
+            })->toSql()
+
+        El SQL que se nos genera es:
+
+            SELECT * FROM 'POSTS' WHERE 'ID' >= ? AND ("category_id" = ? OR 'POSTED' = ?)  -- aqui ya tenemos agrupado las intuciones
+
+        Con un orWhere en:
+
+            Post::where('id','>=',1)->orWhere(function($query){
+                $query->where('category_id', 1)->orWhere('posted', 'yes')
+            })->toSql()
+        
+        El SQL que se nos genera es:
+
+            SELECT * FROM 'POSTS' WHERE 'ID' >= ? OR ("category_id" = ? OR 'POSTED' = ?)  -- aqui ya tenemos agrupado las intuciones
+
+        Para pasarle parametros externos a las intrucciones (con USE() le pasamos los datos que se incorporen a la sentencia)
+
+            $datoExterno = Valor;
+
+            Post::where('id','>=',1)->orWhere(function($query) use($datoExterno){
+                $query->where('category_id', $datoExterno)->orWhere('posted', 'yes')
+            })->get()
+
+    Obtener un Solo registro (Solo un registro y no un conjunto)
+        
+        No importa si solo encuentra un resultado, de todas formas el contenido estara dentro de un Array
+        por eso para acceder al elemento lo tratamos como si fuera un Array
+
+            Post::where('slug','slug')->get()[0]->slug
+        
+        Para no obtener el resultado como un Array hay que obtener solo el primero
+
+            Post::where('slug', 'slug')->first()->slug
+
+        En este caso nos regresa dos registro pero con First solo obtenemos uno que es el primero
+
+            Post::where('title', 'title')->first()
+
+        Esta funcion la emplea laravel de manera interna cuando se le pasa el parametro de la entidad en el controlador como 
+        en las funcion show, edit
+    
+    Limitar la cantidad de Registros
+
+        Supongamos que solo queremos obtener 3 resultados por el componente que estamos creando solo se requiere estos
+        y estamos supiendo que son los 3 primeros, entonces:
+
+        Se usa la funcion de LIMIT() y dentro se le pasa la cantidad de registros que queremos obtener (Si pnemos un numero mayor a la cantidad
+        de registros disponibles entonces obtendremos esa cantidad de registros que hay no mas)
+
+            Post::limit(2)->get()
+
+            Post::get()->count() -- Para saber el numero de registros que hay
+
+        Esta funcion se emplea para la paginacion, entonces lo que nos falta es movernos entre paginas por ejemplo que pasa si no queremos
+        los 3 primeros registros sino que queremos a partir de un N registro que nos regresa los 3 registros despues
+        Con esta funcion nos movemos entre paginas y le indicamos el numero de registros que nos quremos desplazar
+
+            Post::limit(3)->offset(2)->get()
+
+        En la paginacion el Limit es fijo y lo que varia es el OFFSET que indica cual pagina queremos ver y ese argumento sse da con el Page
+        en la URL como "page=1" que si lo multiplicamos por la cantidad de registros nos da el valor del OFFSET que tenemos que colocar
+    
+    Obtener Registros Aleatorios
+        
+            Post::inRandomOrder()->get()
+
+        Antes podemos poner cualquier condicion
+
+            Post::where('id','>','2')->inRandomOrder()->get()
+
+
+
+    COMPONENTES EN LARAVEL
+
+
+        Existen componentes con clase con su vista y componentes anonimos es decir huerfanos que solo consisten de una vista
+        Estos son un bloque de codigo al igual que en otras tecnologias pero del lado del servidor (Cada elemento de una pagina lo
+        podemos convertir en un componente) podriamos pensar que solo sirven del lado de la vista pero tambien tenemos ventajas del lado de los controladores
+        por ejemplo podemos con los atributos tenemos una mejor forma de organizacicion como cambio de clases, para pasar datos adicionales
+
+        Lo interesante es que les podemos pasar atributos (Que los podemos personalizar) estos los mapeamos a una clase donde tenemos un mayor control
+        sobre lo que vamos a mostrar en la vista y sobre los datos
+        (Podemos personalizar los componentes como queramos)
+
+        Los componentes tienen su equivalencia con los controladores porque serian como otra capa del controlador (Del MVC)
+
+        Ejemplo de Organizar los componentes:
+            - Uno para organizar la informacion basica de la aplicacion (Es de tipo Consulta)
+            - Otro para colocar si un POST es Favorito o no (Hace una accion a la BD ya que guarda si el usuario le dio clich o no en favoritos)
+            - Otro componente para agregar la parte de los comentarios
+
+        Lo que vemos arriba es que cada componente tienen una operacion en especifica
+
+        Podemos anidar componentes (Tener un componente dentro de otro), Nos dan otra forma de prosesar las peticiones del usuario
+
+        Cuando intalamos Laravel Breeze en la Ruta: App/HTTP/View/Components
+
+            AppLayout -> Este solo se encarga de cambiar la vista Layout cuando se emplea al layout
+
+        En Ruta: Resources/view/
+
+            dashboard.blade.php -> Cuando veamos "x-" significa que es un componente y "app-layout" significa que esta vista tiene que estar
+            dentro de componentes que seria la de "AppLayout" que esta rescribiendo la ubicacion de la vista indicada
+
+            Dentro de "x-slot" tenemos la parte para la personalizacion, en este caso no se le pasan parametros sino que al igual que con las
+            vistas maestras se indica una seccion donde queremos que ese contenido sea personalizado (Indicamos que parte es donde se podra inyectar
+            contedio que va a cambiar) solo que en este caso estamos empleando compoenntes
+
+            La vista que se utiliza para estos archivos esta en: /Resources/Views/Layouts/app.blade.php
+
+                Aqui vemos que el de "dashboard.blade.php" esta implementando el componente de "app.blade.php" en el "x-slot" con "name=header"
+                va a colocar el contenido del "h2" que tiene dentro en "app.blade.php" (Esto esta dentro del archivo de "app.blade.php" en "isset($header)")
+                donde el "x-slot" se traduce a una variable $header (Con "isset()" pregunta si esta definido y si es asi coloca el contenido sino no pone nada)
+
+                Ademas dento de "app.blade.php" vemos SLOT por defecto donde esta "{ $slot }" que seria como lo del header pero no se indica el nombre
+                El slot por defecto estaria en el "dashboard.blade.php" que seria el contido que esta dentro del "DIV" que no esta encapsulado dentro de ningun "x-slot"
+                (Asi es como se les pasa contenido)
+
+        Dentro de los componentes podemos usar funciones como "merge" para mezclar atributos (Clase, tipo de HTML, Identificadores, atributos externos de HTML), esto lo vemos por ejemplo en el componente de
+        "danger-button.php" y para saber donde se utiliza lo veremos dentro de otros archivos con las etiquetas de "x-danger-button" podremos ver los atributos que se
+        le pasan para modificar la estrucutra que se definio en el componente (Muchos de aributos son de Alphine.JS)
+
+        El componente como "danger-button.blase.js" son huerfanos que no tienen niguna clase asociada y los componentes que tienen asignada una clase son como
+        "AppLayout.php" (Estos casi siempre regresan una vista ya que si no es el caso lo mejor es emplear un controlador)
+
+        El uso de los componentes no tenemos que importar nada, automaticamente Laravel cuando especificamos el "x-NombreArchivo" ya sabe que va a buscar en la carpeta de componente dentro de Views
+        Igual podemos especificar mas la direccion como "x-NombreCarpeta.NombreArchivo"
+
+    Comando para Crear un Componente:(Aqui lo estamos metiendo dentro de un directorio)
+
+        Estara en la carpeta Blog dentro de la subcarpeta Post, por defecto se nos crea la clase y la vista pero como solo queremos la vista ponemos --view
+
+            php artisan make:component blog.post.index --view
+
+        Creamos un controlador para el componente:
+
+            php artisan make:controller blog/BlogController
+
+Lo siguente es crear el Layout
+
+    En este caso podemos crear un componente que devuelva un layout por ejemplo en este caso el componente que creamos lo estamos usando especificando
+    toda la Ruta como "x-blog.post.index" en la vista pero un truco para no referencia la direccion ahi y poder colocar esta vista donde queramos
+    es crear un componente con clase e internamente regresamos la vista que queramos (Al final lo que se referencia es el nombre de la clase)
+    esto se referencia como el ejemplo de "x-app-layout" siendo 'app-layout' el nombre de la clase
+
+    Otra forma es crear el Layout en la carpeta que queramos y lo referenciamos en la vista poniendo toda la ruta completa
+    como en nuestro component. Aqui vamos a usar el Blade clasico con los componentes (El uso de YIELD y el de componentes)
+
+    Aqui creamos nuestro layout en la carpeta blog que ya tenemos
+
+Componentes con Clase
+
+    Con estos ya no seria solamente la vista para el componente sino que tendira su clase y su vista asociada
+
+            Vista -> Controlador -> Clase del Componente -> Vista del Componente
+
+    Comando para crear la vista: (blog es el nombre de la carpeta y Show seria el nombre de la clase)
+
+        php artisan make:component blog/Show
+
+
+
+SLOTS
+
+    Permiten agregar contenido extra HTML/PHP a nuestro componente, asi podemos personalizar facilmente los componentes, indicando mediente secciones
+    aquellos apartados a los cuales queramos colocar dicho contenido extra
+
+    Asi damos informacion adicional y la podemos personalizarla desde donde se implementa el componente, esto es muy similar con el uso de una 
+    plantilla maestra donde heredamos "extends" donde la queremos usar e indicamos con "section" donde agregar el contenido
+    (Es la misma idea solo que aqui tenemos SLOT por defectos o por nombres)
+
+        En este caso:
+
+                Estamos usando un Listado de Posts que es muy flexible ya que puede que tangamos un listado de todos los posts ordenados por flecha
+                u ordenado en base a categorias o clasificasion (Esto seria un componente que podemos emplear bastante y por tanto lo unico que cambiara a parte
+                del lista de POSTS (Que esto ya lo trae el controlador o el componente asociado) seria el titulo que debe ser acorde a lo que esta mostrando)
+
+                Entonces solo colocamos el SLOT y con esto ya le podemos pasar los datos
+
+                Slot Con Nombre:
+
+                    En este caso referenciamos el nombre creandolo como "@slot('NOMBRE')" donde ahora se emplea un bloque porque
+                    dentro del SLOT podemos agregarle cualquier contneido HTML y en donde queremos usar el SLOT seria como {{ $Nombre }}
+                    donde el nombre seria el que le especificamos al SLOT
+                    (Este lo podemos colocar en cualquier parte y otbtenemos mas flexibilidad)
+
+                    Al usar estos SLOTs podemos preguntar en donde los vamos a usar SI estan definidos
+                        @if(isset($NombreSlot))
+                    En caso que si lo esten mostramos una cosa y en caso que no, mostramos otra
+
+
+MEZCLAR ATRIBUTOS (Merge)
+
+    Es una herramienta para cuando queramos crear componentes con estilos variables 
+    Por ejemplo:
+        Tenemos un componente Carta pero queremos cambiar el color de fondo, este componente tiene clases definidas
+        y nosotros solo lo reutilizamos pero lo de cambiar el color si en un inicio lo establecemos fijo 
+            Como Nota adicinal debemos de saber que hay dos formas de trabajar con los estilos, una es en base a los estilos
+            que nosotros queramos como la instalacion de Tailwind pero tenemos otra que es colocarla en base a los componentes
+            es decir que el estilo lo definimos directamente en el componente (Esto nos sirve para no tener una hoja de estilo 
+            muy grande que se carga ademas para cada pagina)
+        Para esto definimos que se mezclen los atributos que se definan en el componente
+
+        Nosotros aqui creamos un componente basico dentro de la carpeta de components llamado "card.blade.php"
+        en el que dentro le definimos unos estilos basicos con el atributo Class
+    
+    Aqui vamos a mezclar atributos donde en "$attributes->merge({'class' => '...'})" en "class" estamos indicando el atributo que queremos mezclar
+
+Obtener y Filtrar atributos
+    - whereStartsWith() -> Podemos obtener los atributos que comienzan con un patron
+    - whereDoesntStartWith() -> Lo mismo de arriba pero negado
+    - has() -> retorna un boolean si existe el atributo
+    - get() -> permite obtener el detalle de un atributo
+    - filter() -> Permite aplicar filtros sobre atributos
+
+Componentes Dinamicos
+
+    En base a una condicion indicar mediante un String o algo a evaluar que queremos cargar cierto componente
+    lo que se puede recibir para cargar puede ser una funcion o una variable 
+    Con esto en lugar de estar colocando condicionales anidados a nivel de vista para indicar que se debe cargar y que no cargar
+    podemos implementar esa logica ya sea en el componente, en la clase del componente o en el controlador y al implementar el componente
+    le indicamos mediante un valor cual es el componente que queremos cargar porque para cargar estos componentes se utiliza
+    "<x-dynamic-component" este es un component interno a laravel y con el atributo "component" indicamos el componente
+    despues indicariamos los atributos que tendria que recibir el componente que cargamos
+
+Ocultar Atributos/Metodos
+
+    Cuando queramos crear propiedades o metodos de manera publica que no se puedan exponer en la plantilla
+    para esto tenemos el atributo llamado "$except = ['']" donde podemos indicar el nombre de esa propiedad
+    o del metodo en cuestion, lo que especifiquemos dentro de $except significa que no lo podemos emplear
+    como una variable en el template
+
+    Esto lo creamos en la clase del componente 
+
+
+    Para aprovehar mejor el uso de los componente tenemos lo de Livewire donde tenemos mas funcion y accione y ademas agregar
+    la parte en la que si cambia algo en la pagina solo actualiza la pequena parte que cambio y no toda la pagina como lo que estamos viendo
+    hasta ahortia
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+

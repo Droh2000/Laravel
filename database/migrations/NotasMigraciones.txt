@@ -29,5 +29,3 @@ ultima migracion creada, en la BD tenemos la tabla de migraacion con el numero d
 y esa es la forma en cojunto que se trataran al Rollback o ejecutar de nuevo la migracion
 
             php artisan migrate -> Implementar las migraciones
-
-
