@@ -483,6 +483,39 @@ Ocultar Atributos/Metodos
 
 
 
+        SEEDERS
+
+    Estos se usan para generar datos de prueba para trabajar con nuestra aplicacion y como se mostraria ya si tuvieramos una gran cantidad de datos
+
+        Model Factories
+
+    Podriamos generar datos estaticos pero para otros casos podemos requerir otros datos mas dinamicos
+    como para los usuarios y para eso estan los Factories para generar datos variados
+    Cuando se crean dentro de la clase tenemos varios metosdos como "faker" que es el que nos permiten generar datos falsos
+
+        Generar SEEDERS:
+
+                php artisan make:seeder <NombreSeeder>
+        
+        Ejecutar el Seeder:
+
+                php artisan db:seed <NombreSeeder>
+
+        Para ejectuar todos los seeders que tengamos registrados en DatabaseSeeder.php
+
+                php artisan db:seed
+
+        Generar Factories:
+
+                php artisan make:factory <NombreFactory>
+
+        Para ejectuar el es el mismo de SEEDERS
+        
+
+    
+
+
+
 
 
     
